@@ -1,0 +1,62 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Visual Subnet Calculator</h1>
+    <br />
+
+    <form asp-action="Index" asp-controller="Form" method="post">
+        <label>IP Adresse</label>
+        <input type="text" asp-for="ipAdress" placeholder="Adresse" />
+        <asp:label>Maske</asp:label>
+        <input type="text" asp-for="mask" placeholder="Maske" />
+        <input type="submit" value="Berechnen"
+               asp-page-handler="start" asp-route-sessioncount="10" />
+    </form>
+    <br />
+
+    @Model.output
+
+    <br/>
+
+    <table border="1" class="center" style="width:100%">
+        <tHead>
+            <tr>
+                <td> Subnetz Adresse </td>
+                <td> Netzmaske </td>
+                <td> Adressbereich </td>
+                <td> Benutzbare IPs</td>
+                <td> Hosts</td>
+                <td> Teilen</td>
+                <td> Verbinden</td>
+                
+            </tr>
+        </tHead>
+
+        <tbody>
+            @for (int i = 0; i < Model.getList().Count; i++)
+            {
+                <tr>
+                    <td>@Model.getList()[i].netAdressDecimal/@Model.getList()[i].mask</td>
+                    <td>@Model.getList()[i].subnetMaskOutput</td>
+                    <td>@Model.getList()[i].netAdressDecimal - @Model.getList()[i].broadcast</td>
+                    <td>@Model.getList()[i].firstHost - @Model.getList()[i].lastHost</td>
+                    <td>@Model.getList()[i].hostAmount</td>
+
+                    <form method="post">
+                    <td>
+                        <input type="hidden" value="@i" asp-for="buttonId"/>
+                        <input type="submit" value="Teilen" id="@i"
+                           asp-page-handler="DivideSubnet">
+                        
+                    </td>
+                    </form>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div> 
