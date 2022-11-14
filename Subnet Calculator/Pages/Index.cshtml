@@ -24,7 +24,7 @@
 
     <table border="1" class="center" style="width:100%">
         <tHead>
-            <tr>
+            <tr class="tb1">
                 <td> Subnetz Adresse </td>
                 <td> Netzmaske </td>
                 <td> Adressbereich </td>
@@ -40,10 +40,16 @@
             @for (int i = 0; i < Model.getList().Count; i++)
             {
                 <tr>
+                    @{
+                        string divider = "-";
+                        if(Model.getList()[i].broadcast.Equals("")){
+                            divider = "";
+                        } 
+                        }
                     <td>@Model.getList()[i].netAdressDecimal/@Model.getList()[i].mask</td>
                     <td>@Model.getList()[i].subnetMaskOutput</td>
-                    <td>@Model.getList()[i].netAdressDecimal - @Model.getList()[i].broadcast</td>
-                    <td>@Model.getList()[i].firstHost - @Model.getList()[i].lastHost</td>
+                    <td>@Model.getList()[i].netAdressDecimal @divider @Model.getList()[i].broadcast</td>
+                    <td>@Model.getList()[i].firstHost @divider @Model.getList()[i].lastHost</td>
                     <td>@Model.getList()[i].hostAmount</td>
 
                     <form method="post">

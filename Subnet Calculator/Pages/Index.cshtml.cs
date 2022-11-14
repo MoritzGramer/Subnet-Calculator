@@ -102,49 +102,59 @@ namespace Subnet_Calculator.Pages
             }
             // output = "IP: " + stringIPAdress + " Maske: " + stringMask;
         }
+
+        //diese Methode teilt ein vorhandenes Subnetz in zwei kleiner Subnetzte
         public void OnPostDivideSubnet()
         {
             int clickedButtonId = Convert.ToInt32(buttonId);
             int currentMask = Convert.ToInt32(getList()[clickedButtonId].mask);
 
+            //Abfrage, ob die Masker kleiner oder gleich 30 ist
             if (Convert.ToInt32(getList()[clickedButtonId].mask) <= 30)
             {
+                //auf die bisherige Subnetzmaske wird 1 addiert. Das Subnet wird kleiner, wenn die Subnetzmakse kleiner wird.
                 int maskPlus1 = (currentMask + 1);
-                string issd = allSubnets[clickedButtonId].netAdress;
 
+                //das 1. neue Subnet wird berechnet
                 Subnet subnet1 = new Subnet();
-                //subnet1.netAdress = getList()[Convert.ToInt32(buttonId)].netId;
                 subnet1.ipAdress = getList()[clickedButtonId].netAdressDecimal;
                 subnet1.mask = maskPlus1.ToString();
                 subnet1.calculateWholeSubnet();
 
+                //das 2. neue Subnet wird berechnet
                 Subnet subnet2 = new Subnet();
                 string temp = subnet2.calculateFirstHostOfSecondSubnet((subnet1.broadcast));
                 subnet2.ipAdress = temp;
                 subnet2.mask = maskPlus1.ToString();
                 subnet2.calculateWholeSubnet();
 
-                //allSubnets.Clear();
                 output = allSubnets[0].netId;
+
+
+
+
+                //das 1. neue Subnet wird hinter dem Subnet eingefügt, welches geteilt wurde
                 allSubnets.Insert(clickedButtonId + 1, subnet1);
+
+                //das 2. neue Subnet wird hinter das 1. neue Subnet eingefügt
                 allSubnets.Insert(clickedButtonId + 2, subnet2);
 
-                //output = allSubnets[1].netAdress;
-
+                //das geteilt Subnet(mit dem Index des Buttons) wird entfernt, zurück bleiben
+                //die beiden neu generierten Subnetze, und das alte Subnet ist in 2 neue eingeteilt.
                 allSubnets.RemoveAt(clickedButtonId);
             }
             else
             {
+               //Abfrage, ob die Subnetzmaske 32 ist. Dabei handelt es sich um einen Spezialfall, der separat berechnet wird
                 if (currentMask == 32)
                 {
                     allSubnets[clickedButtonId].exceptionForCIDR32(); 
-
                 }
 
-                if(currentMask == 31)
+                //Abfrage, ob die Subnetzmaske 31 ist. Dabei handelt es sich um einen Spezialfall, der separat berechnet wird
+                if (currentMask == 31)
                 {
                     //noch das Subnetz teilen
-
                     Subnet subnet1 = new Subnet();
                     subnet1.mask = "32";
                     subnet1.ipAdress = getList()[clickedButtonId].ipAdress;
@@ -155,12 +165,9 @@ namespace Subnet_Calculator.Pages
                     subnet2.ipAdress = getList()[clickedButtonId].lastHost;
                     subnet2.calculateWholeSubnet();
 
-                    //allSubnets[clickedButtonId].exceptionForCIDR31();
-
                     allSubnets.Insert(clickedButtonId + 1, subnet1);
                     allSubnets.Insert(clickedButtonId + 2, subnet2);
 
-                    //output = allSubnets[1].netAdress;
 
                     allSubnets.RemoveAt(clickedButtonId);
 
