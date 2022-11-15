@@ -17,10 +17,11 @@ namespace Subnet_Calculator.Pages
         {
             _logger = logger;
         }
-        [BindProperty] // this line connects this variable from the html part to cs part
+        [BindProperty] //die Variable ipadress muss ein BindProperty sein, da sie im HTML Teil deklariert wird
+        //die Ip-Adresse, welchhe vom Benutzer im HTML Teil eingegeben wird
         public string ipAdress{ get; set; }
 
-        [BindProperty]
+        [BindProperty]//die Variable mask muss ein BindProperty sein, da sie im HTML Teil deklariert wird
         public string mask { get; set; }
         public string output { get; set; }
         public string subnetMaskOutput { get;set; }
@@ -32,9 +33,11 @@ namespace Subnet_Calculator.Pages
         public string lastHost { get; set; }
         public string broadcast { get; set; }
 
+        //die Variable buttonId muss ein BindProperty sein, da sie im HTML Teil deklariert wird
         [BindProperty] public string buttonId { get; set; }
 
         //statische Liste, welche alle Subnetze speichert
+        //diese Liste wird im HTML Teil in einer Tabelle ausgegeben
         public static List<Subnet> allSubnets = new List<Subnet>();
 
         //getter, welche die statisch gesetzte Liste zurückgibt
@@ -43,17 +46,22 @@ namespace Subnet_Calculator.Pages
             return allSubnets;
         }
 
-        //Methode, welche die statische Liste leer macht
+        //Methode, welche die statische Liste leert
         public void clearSubnetList()
         {
             allSubnets.Clear();
         }
+
+        //Funktion, welche zu der statischen Klasse allSubnets einen neuen Eintrag hinzufügt
         public void addToList(Subnet net)
         {
             allSubnets.Add(net);
         }
+
+        //diese Funktion wird ausgeführt, wenn jemand auf den Berechnen Knopf im HTML Teil drückt
         public void OnPost()
         {
+            //Erstellt eine Instanz der Klasse Subnet
             Subnet subnet = new Subnet();
 
             string stringIPAdress = ipAdress;
@@ -62,6 +70,7 @@ namespace Subnet_Calculator.Pages
             //wenn die IpAdresse und die Maske eingebeben wurden
             if (ipAdress == null || mask == null)
             {
+                //gibt eine Fehlermeldung aus
                 output = "Bitte gib eine IP-Adresse und die Maske ein!";
             }
             else
@@ -71,36 +80,43 @@ namespace Subnet_Calculator.Pages
 
                 //Quelle des Regex: https://stackoverflow.com/questions/5284147/validating-ipv4-addresses-with-regexp
                 string strRegex = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}$";
-                //Quellen Ende 
+                //Quellen Ende
 
+                //der Regex wird mit dem Regex String erstellt
                 Regex re = new Regex(strRegex);
 
                 //speichert als boolean ab, ob die Maske eine Zahl ist
                 bool isNumeric = int.TryParse(mask, out _);
 
-                //wenn das Regex muster passt und die Maske eine Zahl zwischen 0 und 32 ist, dannn ist es ein gültiger Input und damit wird weiter gerechnet
+                //wenn das Regex muster passt und die Maske eine Zahl zwischen 0 und 32 ist, dannn ist es ein gültiger Input und damit kann weiter gearbeitet werden
                 if ((re.IsMatch(stringIPAdress)) && isNumeric && Convert.ToInt32(mask) > 0 && Convert.ToInt32(mask) <= 32)
                 { 
                     //checke ob die eingegebene Maske auch eine Zahl ist
                     isNumeric = int.TryParse(stringMask, out _);
-                    //wenn es eine Zahl ist
+                    //wenn es eine Zahl ist, also ein valider Input
                     if (isNumeric)
                     {
+                        //der Berechnen Button wurde neu gedrückt. Die alte Liste wird entfernt und neu beschrieben
                         clearSubnetList();
+
+                        //das Subnet verfügt über eine Ip-Adresse und eine Maske, es berechnet sich nun selbst
                         subnet.calculateWholeSubnet();
+
+                        //das generierte Subnet in der Subnet Liste eingetragen, diese Liste wird im HTML ausgegeben
                         allSubnets.Add(subnet);
                     }
                     else //wenn die Maske keine Zahl ist wird ein Fehler ausgegeben
                     {
+
                         output = "die Maske muss eine Zahl sein!";
                     }
                 }
-                else //wenn der Input NICHT dem Regex Muster entspricht
+                else //wenn der Input NICHT dem Regex Muster entspricht oder die Zahl kleiner als 0 oder größer als 32 ist, ist es eine Fehleingabe
                 {
+                    //gibt die Fehlermeldung aus
                     output = "Gib eine gültige IPv4 Adresse und Maske ein!";
                 }
             }
-            // output = "IP: " + stringIPAdress + " Maske: " + stringMask;
         }
 
         //diese Methode teilt ein vorhandenes Subnetz in zwei kleiner Subnetzte
@@ -117,21 +133,26 @@ namespace Subnet_Calculator.Pages
 
                 //das 1. neue Subnet wird berechnet
                 Subnet subnet1 = new Subnet();
+
+                //die Ip-Adresse des 1. neuen Subnetzes ist die netAdresse des zu teilenden Subnetzes
                 subnet1.ipAdress = getList()[clickedButtonId].netAdressDecimal;
+
+                //die Subnet bekommt die neue Maske: alte Maske+1
                 subnet1.mask = maskPlus1.ToString();
+
+                //das neue Subnetz hat eine Ip-Adresse und Maske und berechnet sich nun selbst
                 subnet1.calculateWholeSubnet();
 
                 //das 2. neue Subnet wird berechnet
                 Subnet subnet2 = new Subnet();
                 string temp = subnet2.calculateFirstHostOfSecondSubnet((subnet1.broadcast));
                 subnet2.ipAdress = temp;
+
+                //das Subnet bekommt die neue Maske: alte Maske+1
                 subnet2.mask = maskPlus1.ToString();
+
+                //das neue Subnetz hat eine Ip-Adresse und Maske und berechnet sich nun selbst
                 subnet2.calculateWholeSubnet();
-
-                output = allSubnets[0].netId;
-
-
-
 
                 //das 1. neue Subnet wird hinter dem Subnet eingefügt, welches geteilt wurde
                 allSubnets.Insert(clickedButtonId + 1, subnet1);
@@ -139,8 +160,8 @@ namespace Subnet_Calculator.Pages
                 //das 2. neue Subnet wird hinter das 1. neue Subnet eingefügt
                 allSubnets.Insert(clickedButtonId + 2, subnet2);
 
-                //das geteilt Subnet(mit dem Index des Buttons) wird entfernt, zurück bleiben
-                //die beiden neu generierten Subnetze, und das alte Subnet ist in 2 neue eingeteilt.
+                //das geteilt Subnet(mit dem Index des Buttons) wird entfernt,
+                // zurück bleiben die beiden neu generierten Subnetze, und das alte Subnet ist geteilt.
                 allSubnets.RemoveAt(clickedButtonId);
             }
             else
@@ -165,15 +186,17 @@ namespace Subnet_Calculator.Pages
                     subnet2.ipAdress = getList()[clickedButtonId].lastHost;
                     subnet2.calculateWholeSubnet();
 
+                    //das Subnetz wird in der Liste hinter dem geteilten Subnetz eingefügt
                     allSubnets.Insert(clickedButtonId + 1, subnet1);
+
+                    //Das 2. neue Subnetz wird hinter das 1. neue Subnetz eingefügt 
                     allSubnets.Insert(clickedButtonId + 2, subnet2);
 
-
+                    //das Subnet, welches geteilt wurde wird entfernt. Die beiden neuen Subnetzt wurden eingetragen, daher wurde das Subnet erfolgreich geteilt.
                     allSubnets.RemoveAt(clickedButtonId);
 
                 }
             }
-
         }
     }
 }

@@ -4,8 +4,6 @@ namespace Subnet_Calculator
 {
     public class Subnet
     {
-        //public string mask { get; set; }
-        //public string netID { get; set; }
 
         //gegeben als Input in der Index Datei
         public string mask = "";
@@ -29,13 +27,15 @@ namespace Subnet_Calculator
         public string subnetMaskOutput;
 
 
+        //Konstruktor der Subnet Klasse mit Parametern
         public Subnet(string ip, string mask)
         {
             this.ipAdress = ip;
             this.mask = mask;  
         }
-        public Subnet(){}
 
+        //Konstruktor der Subnet Klasse ohne Parameter
+        public Subnet(){}
 
         //die Klasse ruft selbständig die eigenen Methoden auf und berechnet somit das eigene Subnet
         public void calculateWholeSubnet()
@@ -350,7 +350,6 @@ namespace Subnet_Calculator
 
         public void exceptionForCIDR32()
         {
-
             this.hostAmount = 1.ToString();
             this.netAdressDecimal = this.ipAdress;
             this.firstHost = netAdressDecimal;
@@ -369,17 +368,5 @@ namespace Subnet_Calculator
             this.broadcast = calculateFirstHostOfSecondSubnet(ipAdress);
             this.lastHost = broadcast;
         }
-
-
-        public void divideIntoCIDR32()
-        {
-
-
-
-
-        }
-
-
-
     }
 }
